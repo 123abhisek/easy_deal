@@ -9,7 +9,6 @@ import '../../../../core/widgets/primary_button.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../controllers/booking_controller.dart';
 import 'package:go_router/go_router.dart';
-import 'package:easy_deal/features/booking/data/models/booking_model.dart';
 import 'digital_receipt_dialog.dart';
 
 class BookingBottomSheet extends ConsumerStatefulWidget {
@@ -80,36 +79,37 @@ class _BookingBottomSheetState extends ConsumerState<BookingBottomSheet> {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    final paymentId = response.paymentId;
+    final orderId = response.orderId ?? _currentOrderId;
+    final bookingId = _currentBookingId;
+
+    if (paymentId == null || orderId == null || bookingId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Payment details missing from gateway response.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      return;
+    }
+
     setState(() => _isLoading = true);
-    final paymentId = response.paymentId ?? 'mock_pay_id';
-    final orderId = response.orderId ?? _currentOrderId ?? 'mock_order';
-    final bookingId = _currentBookingId ?? 'book_${DateTime.now().millisecondsSinceEpoch}';
 
     final repo = ref.read(bookingRepositoryProvider);
     final verifyRes = await repo.verifyBooking(
       bookingId: bookingId,
       paymentId: paymentId,
       orderId: orderId,
+      signature: response.signature,
     );
 
     setState(() => _isLoading = false);
 
     if (mounted) {
-      if (verifyRes.isSuccess) {
-        final confirmedBooking = verifyRes.data ??
-            BookingModel(
-              id: bookingId,
-              listingId: widget.listingId,
-              listingType: widget.listingType,
-              listingTitle: widget.title,
-              amount: 999,
-              status: 'confirmed',
-              listingImageUrl: widget.imageUrl,
-              listingLocation: widget.location,
-              razorpayPaymentId: paymentId,
-              createdAt: DateTime.now().toIso8601String(),
-            );
-
+      if (verifyRes.isSuccess && verifyRes.data != null) {
+        final confirmedBooking = verifyRes.data!;
         ref.read(bookingListControllerProvider.notifier).addConfirmedBooking(confirmedBooking);
 
         Navigator.of(context).pop();
@@ -122,8 +122,8 @@ class _BookingBottomSheetState extends ConsumerState<BookingBottomSheet> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Payment verification failed. Please check with support.'),
+          SnackBar(
+            content: Text(verifyRes.message ?? 'Payment verification failed. Please check with support.'),
             backgroundColor: AppColors.error,
           ),
         );

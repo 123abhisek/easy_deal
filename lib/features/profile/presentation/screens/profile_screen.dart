@@ -107,6 +107,10 @@ class ProfileScreen extends ConsumerWidget {
                         // Badges Row
                         Row(
                           children: [
+                            if (user.isAdmin) ...[
+                              _buildBadge('👑 Administrator', Colors.purple, Colors.purple.shade50),
+                              const SizedBox(width: 8),
+                            ],
                             if (user.isPremium)
                               _buildBadge('⭐ Gold Member', AppColors.goldDark, AppColors.goldLight)
                             else
@@ -260,6 +264,14 @@ class ProfileScreen extends ConsumerWidget {
                 color: AppColors.propertyAccent,
                 onTap: () => context.push('/my-bookings'),
               ),
+              if (user.isAdmin)
+                _buildOptionTile(
+                  icon: Icons.admin_panel_settings_rounded,
+                  title: 'Admin Moderation Hub',
+                  subtitle: 'Approve listings, manage users & monitor metrics',
+                  color: Colors.purple,
+                  onTap: () => context.push('/admin-dashboard'),
+                ),
               _buildOptionTile(
                 icon: user.isSeller ? Icons.storefront_rounded : Icons.handshake_outlined,
                 title: user.isSeller ? 'Seller Dashboard' : 'Become a Verified Seller',

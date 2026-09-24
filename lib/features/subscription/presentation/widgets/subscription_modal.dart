@@ -43,8 +43,20 @@ class _SubscriptionModalState extends ConsumerState<SubscriptionModal> {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
-    final orderId = response.orderId ?? _currentOrderId ?? 'mock_order';
-    final paymentId = response.paymentId ?? 'mock_pay_id';
+    final orderId = response.orderId ?? _currentOrderId;
+    final paymentId = response.paymentId;
+
+    if (orderId == null || paymentId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Payment verification details missing from gateway response.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      return;
+    }
 
     final success = await ref.read(subscriptionControllerProvider.notifier).confirmUpgrade(
           paymentId: paymentId,

@@ -12,16 +12,15 @@ class AdminRepository {
     if (response.isSuccess && response.data != null) {
       return ApiResponse.success(Map<String, dynamic>.from(response.data!));
     }
+    return ApiResponse.error(response.message ?? 'Failed to load dashboard statistics');
+  }
 
-    // Default mock stats
-    return ApiResponse.success({
-      'total_users': 1420,
-      'total_sellers': 84,
-      'total_properties': 312,
-      'total_vehicles': 195,
-      'pending_approvals': 4,
-      'total_revenue': 148500.0,
-    });
+  Future<ApiResponse<Map<String, dynamic>>> getAnalyticsSummary() async {
+    final response = await client.get(ApiEndpoints.adminAnalyticsSummary);
+    if (response.isSuccess && response.data != null) {
+      return ApiResponse.success(Map<String, dynamic>.from(response.data!));
+    }
+    return ApiResponse.error(response.message ?? 'Failed to fetch analytics');
   }
 
   Future<ApiResponse<List<Map<String, dynamic>>>> getPendingListings() async {
@@ -36,30 +35,7 @@ class AdminRepository {
       }
       return ApiResponse.success(raw.map((e) => Map<String, dynamic>.from(e)).toList());
     }
-
-    // Default mock pending listings for admin review demo
-    return ApiResponse.success([
-      {
-        'id': 'pend_01',
-        'type': 'property',
-        'title': 'New 3BHK Apartment in Bellandur Outer Ring Road',
-        'location': 'Bellandur, Bangalore',
-        'price': 9200000.0,
-        'contact': '9845001122',
-        'created_at': '2026-09-18T10:00:00Z',
-        'status': 'pending',
-      },
-      {
-        'id': 'pend_02',
-        'type': 'vehicle',
-        'title': '2023 Kia Seltos GTX Plus Diesel AT',
-        'location': 'Indiranagar, Bangalore',
-        'price': 1890000.0,
-        'contact': '9876543210',
-        'created_at': '2026-09-18T11:20:00Z',
-        'status': 'pending',
-      },
-    ]);
+    return ApiResponse.error(response.message ?? 'Failed to fetch pending listings');
   }
 
   Future<ApiResponse<bool>> updateListingStatus(String id, String type, String status) async {
@@ -71,6 +47,68 @@ class AdminRepository {
       endpoint,
       data: {'status': status},
     );
+    return ApiResponse.success(response.isSuccess);
+  }
+
+  Future<ApiResponse<List<Map<String, dynamic>>>> getAllUsers({int skip = 0, int limit = 50}) async {
+    final response = await client.get(
+      ApiEndpoints.adminUsers,
+      queryParameters: {'skip': skip, 'limit': limit},
+    );
+    if (response.isSuccess && response.data is List) {
+      final list = (response.data as List).map((e) => Map<String, dynamic>.from(e)).toList();
+      return ApiResponse.success(list);
+    }
+    return ApiResponse.error(response.message ?? 'Failed to fetch users');
+  }
+
+  Future<ApiResponse<List<Map<String, dynamic>>>> getAllBookings({int skip = 0, int limit = 50}) async {
+    final response = await client.get(
+      ApiEndpoints.adminAllBookings,
+      queryParameters: {'skip': skip, 'limit': limit},
+    );
+    if (response.isSuccess && response.data is List) {
+      final list = (response.data as List).map((e) => Map<String, dynamic>.from(e)).toList();
+      return ApiResponse.success(list);
+    }
+    return ApiResponse.error(response.message ?? 'Failed to fetch bookings');
+  }
+
+  Future<ApiResponse<List<Map<String, dynamic>>>> getSellerRequests({String? status}) async {
+    final response = await client.get(
+      ApiEndpoints.adminSellerRequests,
+      queryParameters: status != null ? {'status': status} : null,
+    );
+    if (response.isSuccess && response.data is List) {
+      final list = (response.data as List).map((e) => Map<String, dynamic>.from(e)).toList();
+      return ApiResponse.success(list);
+    }
+    return ApiResponse.error(response.message ?? 'Failed to fetch seller requests');
+  }
+
+  Future<ApiResponse<bool>> approveSellerRequest(String requestId, {String? remarks}) async {
+    final response = await client.post(
+      ApiEndpoints.adminApproveSellerRequest(requestId),
+      data: {'admin_remarks': remarks ?? 'Approved by administrator'},
+    );
+    return ApiResponse.success(response.isSuccess);
+  }
+
+  Future<ApiResponse<bool>> rejectSellerRequest(String requestId, {required String remarks}) async {
+    final response = await client.post(
+      ApiEndpoints.adminRejectSellerRequest(requestId),
+      data: {'admin_remarks': remarks},
+    );
+    return ApiResponse.success(response.isSuccess);
+  }
+
+  Future<ApiResponse<bool>> suspendUser(String userId) async {
+    final response = await client.patch(ApiEndpoints.adminSuspendUser(userId));
+    return ApiResponse.success(response.isSuccess);
+  }
+
+  Future<ApiResponse<bool>> activateUser(String userId) async {
+    final response = await client.patch(ApiEndpoints.adminActivateUser(userId));
     return ApiResponse.success(response.isSuccess);
   }
 }

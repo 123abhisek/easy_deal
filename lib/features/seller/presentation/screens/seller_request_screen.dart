@@ -40,9 +40,10 @@ class _SellerRequestScreenState extends ConsumerState<SellerRequestScreen> {
     final response = await repo.submitSellerRequest(
       businessName: _businessNameController.text.trim(),
       businessType: _businessType,
-      address: _addressController.text.trim(),
-      gstOrAadhar: _idProofController.text.trim(),
-      comments: _commentsController.text.trim(),
+      location: _addressController.text.trim(),
+      description: _commentsController.text.trim().isNotEmpty
+          ? _commentsController.text.trim()
+          : 'Business ID: ${_idProofController.text.trim()}',
     );
     setState(() => _isLoading = false);
 

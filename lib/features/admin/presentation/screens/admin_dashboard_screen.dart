@@ -38,7 +38,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: _buildStatBadge('Total Users', '${stats['total_users'] ?? 1420}', AppColors.primary),
+                          child: _buildStatBadge('Customers', '${stats['total_customers'] ?? stats['total_users'] ?? 1420}', AppColors.primary),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -46,7 +46,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: _buildStatBadge('Pending', '${pending.length}', Colors.deepOrange),
+                          child: _buildStatBadge('Pending', '${stats['total_pending'] ?? pending.length}', Colors.deepOrange),
                         ),
                       ],
                     ),

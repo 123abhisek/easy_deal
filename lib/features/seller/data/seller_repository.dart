@@ -10,18 +10,24 @@ class SellerRepository {
   Future<ApiResponse<Map<String, dynamic>>> submitSellerRequest({
     required String businessName,
     required String businessType, // Agency, Dealer, Individual
-    required String address,
-    required String gstOrAadhar,
-    String? comments,
+    String? description,
+    String? location,
+    String? state,
+    String? city,
+    String? pincode,
+    String? documentUrl,
   }) async {
     final response = await client.post(
       ApiEndpoints.requestSeller,
       data: {
         'business_name': businessName,
         'business_type': businessType,
-        'address': address,
-        'id_proof_number': gstOrAadhar,
-        'comments': comments ?? '',
+        if (description != null && description.isNotEmpty) 'description': description,
+        if (location != null && location.isNotEmpty) 'location': location,
+        if (state != null && state.isNotEmpty) 'state': state,
+        if (city != null && city.isNotEmpty) 'city': city,
+        if (pincode != null && pincode.isNotEmpty) 'pincode': pincode,
+        if (documentUrl != null && documentUrl.isNotEmpty) 'document_url': documentUrl,
       },
     );
 
@@ -44,6 +50,14 @@ class SellerRepository {
     return ApiResponse.error(response.message ?? 'No application found');
   }
 
+  Future<ApiResponse<Map<String, dynamic>>> getSellerProfile() async {
+    final response = await client.get(ApiEndpoints.sellerProfile);
+    if (response.isSuccess && response.data != null) {
+      return ApiResponse.success(Map<String, dynamic>.from(response.data!));
+    }
+    return ApiResponse.error(response.message ?? 'Failed to load seller profile');
+  }
+
   Future<ApiResponse<Map<String, dynamic>>> getSellerStats() async {
     final response = await client.get(ApiEndpoints.sellerStats);
     if (response.isSuccess && response.data != null) {
@@ -51,10 +65,39 @@ class SellerRepository {
     }
 
     return ApiResponse.success({
-      'active_listings': 6,
-      'total_inquiries': 42,
-      'confirmed_tokens': 3,
+      'total_properties': 3,
+      'total_vehicles': 3,
+      'total_listings': 6,
+      'total_bookings': 4,
+      'confirmed_bookings': 3,
       'total_earnings': 2997.0,
     });
+  }
+
+  Future<ApiResponse<List<Map<String, dynamic>>>> getSellerProperties() async {
+    final response = await client.get(ApiEndpoints.sellerProperties);
+    if (response.isSuccess && response.data != null) {
+      final List raw = response.data is List ? response.data : [];
+      return ApiResponse.success(raw.map((e) => Map<String, dynamic>.from(e)).toList());
+    }
+    return ApiResponse.success([]);
+  }
+
+  Future<ApiResponse<List<Map<String, dynamic>>>> getSellerVehicles() async {
+    final response = await client.get(ApiEndpoints.sellerVehicles);
+    if (response.isSuccess && response.data != null) {
+      final List raw = response.data is List ? response.data : [];
+      return ApiResponse.success(raw.map((e) => Map<String, dynamic>.from(e)).toList());
+    }
+    return ApiResponse.success([]);
+  }
+
+  Future<ApiResponse<List<Map<String, dynamic>>>> getSellerBookings() async {
+    final response = await client.get(ApiEndpoints.sellerBookings);
+    if (response.isSuccess && response.data != null) {
+      final List raw = response.data is List ? response.data : [];
+      return ApiResponse.success(raw.map((e) => Map<String, dynamic>.from(e)).toList());
+    }
+    return ApiResponse.success([]);
   }
 }

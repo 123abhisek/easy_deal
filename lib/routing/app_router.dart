@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/admin/presentation/screens/admin_dashboard_screen.dart';
 import '../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
@@ -14,6 +15,7 @@ import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/property/presentation/screens/add_property_screen.dart';
 import '../features/property/presentation/screens/property_detail_screen.dart';
 import '../features/property/presentation/screens/property_list_screen.dart';
+import '../features/seller/presentation/screens/seller_dashboard_screen.dart';
 import '../features/seller/presentation/screens/seller_request_screen.dart';
 import '../features/vehicle/presentation/screens/add_vehicle_screen.dart';
 import '../features/vehicle/presentation/screens/vehicle_detail_screen.dart';
@@ -146,6 +148,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/seller-request',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const SellerRequestScreen(),
+      ),
+
+      // Dashboards (Role-based)
+      GoRoute(
+        path: '/seller-dashboard',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SellerDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/admin-dashboard',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AdminDashboardScreen(),
       ),
 
       // Profile sub-pages

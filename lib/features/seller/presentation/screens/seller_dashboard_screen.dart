@@ -80,7 +80,7 @@ class SellerDashboardScreen extends ConsumerWidget {
                         Expanded(
                           child: _buildMetricCard(
                             'Active Listings',
-                            '${stats['active_listings'] ?? 6}',
+                            '${stats['total_listings'] ?? stats['active_listings'] ?? 6}',
                             Icons.inventory_2_outlined,
                             AppColors.primary,
                           ),
@@ -88,8 +88,8 @@ class SellerDashboardScreen extends ConsumerWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildMetricCard(
-                            'Buyer Inquiries',
-                            '${stats['total_inquiries'] ?? 42}',
+                            'Total Bookings',
+                            '${stats['total_bookings'] ?? stats['total_inquiries'] ?? 4}',
                             Icons.chat_bubble_outline_rounded,
                             AppColors.propertyAccent,
                           ),
@@ -101,8 +101,8 @@ class SellerDashboardScreen extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: _buildMetricCard(
-                            'Token Reserves',
-                            '${stats['confirmed_tokens'] ?? 3}',
+                            'Confirmed Deals',
+                            '${stats['confirmed_bookings'] ?? stats['confirmed_tokens'] ?? 3}',
                             Icons.bolt_rounded,
                             Colors.deepOrange,
                           ),
@@ -110,7 +110,7 @@ class SellerDashboardScreen extends ConsumerWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildMetricCard(
-                            'Hold Revenue',
+                            'Token Revenue',
                             CurrencyHelper.format(stats['total_earnings'] ?? 2997.0),
                             Icons.currency_rupee_rounded,
                             AppColors.goldDark,

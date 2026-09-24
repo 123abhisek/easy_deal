@@ -59,12 +59,10 @@ class PaymentService {
         onFailure(PaymentFailureResponse(0, 'Failed to open Razorpay checkout: $e', null));
       }
     } else {
-      // Mock / fallback for testing on non-mobile platforms
-      debugPrint('Razorpay platform check: non-mobile platform or emulator mock');
-      onSuccess(PaymentSuccessResponse(
-        'pay_mock_${DateTime.now().millisecondsSinceEpoch}',
-        orderId,
-        'mock_signature_${DateTime.now().millisecondsSinceEpoch}',
+      debugPrint('Razorpay platform check: non-mobile platform');
+      onFailure(PaymentFailureResponse(
+        Razorpay.PAYMENT_CANCELLED,
+        'Razorpay checkout is only supported on Android & iOS mobile devices.',
         null,
       ));
     }

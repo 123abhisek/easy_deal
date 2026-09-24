@@ -32,21 +32,77 @@ class BookingModel {
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
+    // Check if nested in 'listing', 'buyer', 'payment' (FastAPI BookingOut)
+    final listing = json['listing'] is Map ? Map<String, dynamic>.from(json['listing']) : null;
+    final buyer = json['buyer'] is Map ? Map<String, dynamic>.from(json['buyer']) : null;
+    final payment = json['payment'] is Map ? Map<String, dynamic>.from(json['payment']) : null;
+
+    final String listingId = json['listing_id']?.toString() ??
+        listing?['id']?.toString() ??
+        listing?['property_id']?.toString() ??
+        listing?['vehicle_id']?.toString() ??
+        json['property_id']?.toString() ??
+        json['vehicle_id']?.toString() ??
+        '';
+
+    final String listingType = json['listing_type']?.toString() ??
+        listing?['type']?.toString() ??
+        (json['property_id'] != null ? 'property' : (json['vehicle_id'] != null ? 'vehicle' : 'property'));
+
+    final String listingTitle = json['listing_title']?.toString() ??
+        listing?['title']?.toString() ??
+        json['title']?.toString() ??
+        'Listing Reservation';
+
+    final rawAmount = json['amount'] ?? payment?['amount'];
+    final double amount = rawAmount is num
+        ? rawAmount.toDouble()
+        : (double.tryParse(rawAmount?.toString() ?? '999') ?? 999.0);
+
+    final String? paymentId = json['razorpay_payment_id']?.toString() ??
+        json['payment_id']?.toString() ??
+        payment?['razorpay_payment_id']?.toString() ??
+        payment?['payment_id']?.toString();
+
+    final String? orderId = json['razorpay_order_id']?.toString() ??
+        json['order_id']?.toString() ??
+        payment?['razorpay_order_id']?.toString();
+
+    final String? payerName = json['payer_name']?.toString() ??
+        json['buyer_name']?.toString() ??
+        buyer?['name']?.toString();
+
+    final String? payerEmail = json['payer_email']?.toString() ??
+        json['buyer_email']?.toString() ??
+        buyer?['email']?.toString();
+
+    final String? payerPhone = json['payer_phone']?.toString() ??
+        json['buyer_phone']?.toString() ??
+        buyer?['phone']?.toString();
+
+    final String? imageUrl = json['listing_image_url']?.toString() ??
+        json['image_url']?.toString() ??
+        listing?['thumbnail']?.toString();
+
+    final String? location = json['listing_location']?.toString() ??
+        json['location']?.toString() ??
+        listing?['location']?.toString();
+
     return BookingModel(
       id: json['id']?.toString() ?? json['booking_id']?.toString() ?? '',
-      listingId: json['listing_id']?.toString() ?? '',
-      listingType: json['listing_type']?.toString() ?? 'property',
-      listingTitle: json['listing_title']?.toString() ?? json['title']?.toString() ?? 'Listing Reservation',
-      amount: json['amount'] is num ? (json['amount'] as num).toDouble() : double.tryParse(json['amount']?.toString() ?? '999') ?? 999.0,
+      listingId: listingId,
+      listingType: listingType,
+      listingTitle: listingTitle,
+      amount: amount,
       status: json['status']?.toString() ?? 'confirmed',
-      razorpayPaymentId: json['razorpay_payment_id']?.toString() ?? json['payment_id']?.toString(),
-      razorpayOrderId: json['razorpay_order_id']?.toString() ?? json['order_id']?.toString(),
-      payerName: json['payer_name']?.toString() ?? json['buyer_name']?.toString(),
-      payerEmail: json['payer_email']?.toString() ?? json['buyer_email']?.toString(),
-      payerPhone: json['payer_phone']?.toString() ?? json['buyer_phone']?.toString(),
+      razorpayPaymentId: paymentId,
+      razorpayOrderId: orderId,
+      payerName: payerName,
+      payerEmail: payerEmail,
+      payerPhone: payerPhone,
       createdAt: json['created_at']?.toString(),
-      listingImageUrl: json['listing_image_url']?.toString() ?? json['image_url']?.toString(),
-      listingLocation: json['listing_location']?.toString() ?? json['location']?.toString(),
+      listingImageUrl: imageUrl,
+      listingLocation: location,
     );
   }
 

@@ -16,7 +16,7 @@ class SubscriptionRepository {
     final response = await client.post(
       ApiEndpoints.createPaymentOrder,
       data: {
-        'amount': amount,
+        'amount': (amount * 100).toInt(),
         'currency': currency,
         'purpose': purpose,
         'plan_months': planMonths,
@@ -26,13 +26,7 @@ class SubscriptionRepository {
     if (response.isSuccess && response.data != null) {
       return ApiResponse.success(Map<String, dynamic>.from(response.data!));
     }
-    // Fallback order for testing if backend is in offline mode
-    return ApiResponse.success({
-      'order_id': 'order_${DateTime.now().millisecondsSinceEpoch}',
-      'amount': (amount * 100).toInt(),
-      'currency': currency,
-      'key_id': 'rzp_test_mock_12345',
-    });
+    return ApiResponse.error(response.message ?? 'Failed to create payment order');
   }
 
   Future<ApiResponse<Map<String, dynamic>>> upgradeSubscription({
@@ -53,13 +47,7 @@ class SubscriptionRepository {
       return ApiResponse.success(Map<String, dynamic>.from(response.data!));
     }
 
-    // Success fallback for mock test
-    return ApiResponse.success({
-      'success': true,
-      'message': 'Premium activated successfully',
-      'is_premium': true,
-      'expires_at': DateTime.now().add(Duration(days: 30 * planMonths)).toIso8601String(),
-    });
+    return ApiResponse.error(response.message ?? 'Failed to upgrade subscription');
   }
 
   Future<ApiResponse<Map<String, dynamic>>> getSubscriptionStatus() async {

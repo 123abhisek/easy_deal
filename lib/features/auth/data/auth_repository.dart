@@ -53,6 +53,18 @@ class AuthRepository {
       final userData = data['user'] ?? data;
       final user = UserModel.fromJson(userData);
       await storage.saveUserId(user.id);
+
+      // Backend /auth/register returns UserOut without token; auto-login to acquire JWT
+      if (token == null && registerData['email'] != null && registerData['password'] != null) {
+        final loginRes = await login(
+          identifier: registerData['email'].toString(),
+          password: registerData['password'].toString(),
+        );
+        if (loginRes.isSuccess) {
+          return loginRes;
+        }
+      }
+
       return ApiResponse.success(user, response.statusCode);
     }
 

@@ -5,10 +5,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/empty_state_view.dart';
 import 'package:easy_deal/features/property/data/models/property_model.dart';
-import 'package:easy_deal/features/property/data/property_repository.dart';
 import 'package:easy_deal/features/property/presentation/controllers/property_controller.dart';
 import 'package:easy_deal/features/vehicle/data/models/vehicle_model.dart';
-import 'package:easy_deal/features/vehicle/data/vehicle_repository.dart';
 import 'package:easy_deal/features/vehicle/presentation/controllers/vehicle_controller.dart';
 
 class MyListingsScreen extends ConsumerStatefulWidget {
@@ -47,8 +45,8 @@ class _MyListingsScreenState extends ConsumerState<MyListingsScreen> with Single
 
     if (mounted) {
       setState(() {
-        _properties = propRes.data ?? PropertyRepository.mockProperties.take(2).toList();
-        _vehicles = vehRes.data ?? VehicleRepository.mockVehicles.take(2).toList();
+        _properties = propRes.data ?? [];
+        _vehicles = vehRes.data ?? [];
         _isLoading = false;
       });
     }

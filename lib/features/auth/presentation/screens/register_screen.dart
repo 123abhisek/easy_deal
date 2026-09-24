@@ -41,7 +41,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final data = {
+    final data = <String, dynamic>{
       'name': _nameController.text.trim(),
       'email': _emailController.text.trim(),
       'password': _passwordController.text,
@@ -51,9 +51,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       'location': _locationController.text.trim().isNotEmpty
           ? _locationController.text.trim()
           : _cityController.text.trim(),
-      'occupation': _occupationController.text.trim(),
-      'gender': 'unspecified',
     };
+
+    final occupation = _occupationController.text.trim();
+    if (occupation.isNotEmpty) {
+      data['occupation'] = occupation;
+    }
 
     final success = await ref.read(authControllerProvider.notifier).register(data);
 

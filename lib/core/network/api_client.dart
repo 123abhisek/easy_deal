@@ -44,18 +44,22 @@ class ApiClient {
       if (error.response != null && error.response?.data != null) {
         final data = error.response!.data;
         if (data is Map) {
+          if (data.containsKey('errors') && data['errors'] is List && (data['errors'] as List).isNotEmpty) {
+            return (data['errors'] as List).map((e) => e.toString()).join('\n');
+          }
           if (data.containsKey('detail')) {
             final detail = data['detail'];
-            if (detail is String) return detail;
+            if (detail is String) {
+              if (detail != 'Validation error' || !data.containsKey('errors')) {
+                return detail;
+              }
+            }
             if (detail is List) {
               return detail.map((e) => e is Map ? (e['msg'] ?? e.toString()) : e.toString()).join('\n');
             }
           }
           if (data.containsKey('message')) {
             return data['message'].toString();
-          }
-          if (data.containsKey('errors') && data['errors'] is List) {
-            return (data['errors'] as List).join('\n');
           }
         }
         return error.response?.statusMessage ?? 'Server Error (${error.response?.statusCode})';

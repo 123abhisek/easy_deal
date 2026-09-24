@@ -49,36 +49,43 @@ class VehicleModel {
     List<String> parsedImages = [];
     if (json['images'] is List) {
       parsedImages = (json['images'] as List).map((e) => e.toString()).toList();
+    } else if (json['images_list'] is List) {
+      parsedImages = (json['images_list'] as List).map((e) => e.toString()).toList();
     } else if (json['image_url'] != null) {
       parsedImages = [json['image_url'].toString()];
+    } else if (json['thumbnail'] != null) {
+      parsedImages = [json['thumbnail'].toString()];
+    } else if (json['image'] != null) {
+      parsedImages = [json['image'].toString()];
     }
+
+    final rawPrice = json['expectedPrice'] ?? json['expected_price'] ?? json['price'] ?? json['amount'];
+    final parsedPrice = rawPrice is num
+        ? rawPrice.toDouble()
+        : (double.tryParse(rawPrice?.toString() ?? '0') ?? 0.0);
 
     return VehicleModel(
       id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
-      title: json['title']?.toString() ?? 'Vehicle Listing',
+      title: json['title']?.toString() ?? json['name']?.toString() ?? 'Vehicle Listing',
       vehicleNumber: json['vehicleNumber']?.toString() ?? json['vehicle_number']?.toString(),
-      brand: json['brand']?.toString() ?? '',
+      brand: json['brand']?.toString() ?? json['make']?.toString() ?? '',
       model: json['model']?.toString() ?? '',
       year: json['year']?.toString() ?? '',
       rtoCode: json['rtoCode']?.toString() ?? json['rto_code']?.toString(),
       kmDriven: json['kmDriven']?.toString() ?? json['km_driven']?.toString(),
-      fuelType: json['fuelType']?.toString() ?? json['fuel_type']?.toString() ?? 'Petrol',
+      fuelType: json['fuelType']?.toString() ?? json['fuel_type']?.toString() ?? json['category']?.toString() ?? 'Petrol',
       transmission: json['transmission']?.toString() ?? 'Manual',
       ownerCount: json['ownerCount']?.toString() ?? json['owner_count']?.toString() ?? '1st Owner',
       state: json['state']?.toString(),
-      location: json['location']?.toString() ?? '',
-      expectedPrice: json['expectedPrice'] is num
-          ? (json['expectedPrice'] as num).toDouble()
-          : (json['price'] is num
-              ? (json['price'] as num).toDouble()
-              : (double.tryParse(json['expectedPrice']?.toString() ?? json['price']?.toString() ?? '0') ?? 0.0)),
-      contactNumber: json['contactNumber']?.toString() ?? json['contact']?.toString(),
+      location: json['location']?.toString() ?? json['city']?.toString() ?? '',
+      expectedPrice: parsedPrice,
+      contactNumber: json['contactNumber']?.toString() ?? json['contact_number']?.toString() ?? json['contact']?.toString(),
       images: parsedImages,
       status: json['status']?.toString() ?? 'approved',
-      ownerId: json['owner_id']?.toString() ?? json['user_id']?.toString(),
-      ownerName: json['owner_name']?.toString() ?? json['contact_name']?.toString(),
-      createdAt: json['created_at']?.toString(),
-      isFeatured: json['is_featured'] == true,
+      ownerId: json['owner_id']?.toString() ?? json['user_id']?.toString() ?? json['ownerId']?.toString() ?? json['userId']?.toString(),
+      ownerName: json['owner_name']?.toString() ?? json['contact_name']?.toString() ?? json['ownerName']?.toString(),
+      createdAt: json['created_at']?.toString() ?? json['createdAt']?.toString(),
+      isFeatured: json['is_featured'] == true || json['isFeatured'] == true,
     );
   }
 
